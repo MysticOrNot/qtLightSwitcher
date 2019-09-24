@@ -5,6 +5,7 @@
 #include <QMimeData>
 #include <QSystemTrayIcon>
 #include <QWidget>
+#include <QFileInfo>
 #include <X11/Xlib.h>
 #include <X11/extensions/XTest.h>
 #include <X11/keysym.h>
@@ -13,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    setWindowIcon(QIcon("./switch.png"));
+    setWindowIcon(QIcon(QFileInfo(QCoreApplication::applicationFilePath()).absoluteFilePath() + "/switch.png"));
     ui->setupUi(this);
 
     // горячие клавиши
