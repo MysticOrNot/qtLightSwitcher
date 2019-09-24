@@ -128,7 +128,7 @@ void MainWindow::hotKeyPressed()
     clipboard->setText(chandelocaleStr, QClipboard::Clipboard);
     clipboard->dataChanged();
     Paste();
-    trayIcon->showMessage( "lightSwitcher", chandelocaleStr, QSystemTrayIcon::Information );
+    trayIcon->showMessage( "lightSwitcher", selectedText + " -> "+chandelocaleStr, QSystemTrayIcon::Information );
 }
 
 void MainWindow::initPasteKeys()
