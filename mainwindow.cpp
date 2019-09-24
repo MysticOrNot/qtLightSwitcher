@@ -3,6 +3,8 @@
 #include "GlobalActionHelper.h"
 #include <QClipboard>
 #include <QMimeData>
+#include <QSystemTrayIcon>
+#include <QWidget>
 #include <X11/Xlib.h>
 #include <X11/extensions/XTest.h>
 #include <X11/keysym.h>
@@ -23,11 +25,42 @@ MainWindow::MainWindow(QWidget *parent) :
     });
     GlobalActionHelper::makeGlobal (globalAction);
     initPasteKeys();
+
+    //connect( ui->bnShowMsg, SIGNAL( clicked( bool ) ), SLOT( onShowMessageInTray() ) );
+
+    trayIcon = new QSystemTrayIcon( QIcon("./switch.png"), this );
+    connect(
+         trayIcon,
+         SIGNAL( activated( QSystemTrayIcon::ActivationReason ) ),
+         SLOT( onTrayIconActivated( QSystemTrayIcon::ActivationReason ) )
+    );
+
+    trayIconMenu = new QMenu;
+
+    quitAction = trayIconMenu->addAction( "Выход" );
+    connect( quitAction, SIGNAL( triggered( bool ) ), qApp, SLOT( quit() ) );
+
+    minimizeAction = trayIconMenu->addAction( "Свернуть" );
+    connect( minimizeAction, SIGNAL( triggered( bool ) ), this, SLOT( hide() ) );
+
+    restoreAction = trayIconMenu->addAction( "Показать" );
+    connect( restoreAction, SIGNAL( triggered( bool ) ), this, SLOT( showNormal() ) );
+
+    trayIcon->setContextMenu( trayIconMenu );
+    trayIcon->show();
+
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    hide();
+    event->ignore();
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -95,6 +128,7 @@ void MainWindow::hotKeyPressed()
     clipboard->setText(chandelocaleStr, QClipboard::Clipboard);
     clipboard->dataChanged();
     Paste();
+    trayIcon->showMessage( "lightSwitcher", chandelocaleStr, QSystemTrayIcon::Information );
 }
 
 void MainWindow::initPasteKeys()
@@ -190,4 +224,21 @@ void MainWindow::on_pushButton_2_clicked()
 void MainWindow::on_plainTextEdit_textChanged()
 {
 
+}
+
+void MainWindow::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    switch( reason ) {
+        case QSystemTrayIcon::Trigger:
+            setVisible( !isVisible() );
+            break;
+
+        default:
+            break;
+    }
+}
+
+void MainWindow::onShowMessageInTray()
+{
+    trayIcon->showMessage( "Message title", "Message text", QSystemTrayIcon::Information );
 }
